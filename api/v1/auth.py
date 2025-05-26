@@ -4,11 +4,12 @@ from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
+from fastapi import Form
 from core.config import settings
 from core.limiter import limiter
 from core.logging import logger
 from models.user import User
-from schemas.auth import UserCreate, UserResponse, SessionResponse
+from schemas.auth import UserCreate, UserResponse, SessionResponse, TokenResponse
 from services.database import DatabaseService
 from utils.auth import create_access_token, verify_token
 from fastapi import Depends
@@ -96,3 +97,42 @@ async def create_session(user: User = Depends(get_current_user)):
             user_id=user.id,
             exc_info=True,
         )
+
+
+@router.post("/login", response_model=TokenResponse)
+async def login(
+    request: Request,
+    username: str = Form(default="user@example.com"),
+    password: str = Form(default="ABCD$%1234adc"),
+    grant_type: str = Form(default="password"),
+):
+    try:
+        # Sanitize inputs
+        username = sanitize_string(username)
+        password = sanitize_string(password)
+        grant_type = sanitize_string(grant_type)
+
+        # Verify grant type
+        if grant_type != "password":
+            raise HTTPException(
+                status_code=400,
+                detail="Unsupported grant type. Must be 'password'",
+            )
+
+        user = await db_service.get_user_by_email(username)
+        if not user or not user.verify_password(password):
+            raise HTTPException(
+                status_code=401,
+                detail="Incorrect email or password",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        token = create_access_token(str(user.id))
+        return TokenResponse(
+            access_token=token.access_token,
+            token_type="bearer",
+            expires_at=token.expires_at,
+        )
+    except ValueError as ve:
+        logger.error("login_validation_failed", error=str(ve), exc_info=True)
+        raise HTTPException(status_code=422, detail=str(ve))

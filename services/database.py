@@ -1,11 +1,12 @@
 from sqlalchemy import QueuePool, create_engine
 from sqlalchemy.exc import SQLAlchemyError
-from sqlmodel import Session, SQLModel
+from sqlmodel import Session, SQLModel, select
 
 from core.config import Environment, settings
 from core.logging import logger
 from models.user import User
 from models.session import Session as ChatSession
+from typing import Optional
 
 
 class DatabaseService:
@@ -61,7 +62,6 @@ class DatabaseService:
             user = session.get(User, user_id)
             return user
 
-
     async def create_session(self, session_id: str, user_id: int, name: str = ""):
         with Session(self.engine) as session:
             chat_session = ChatSession(
@@ -69,6 +69,13 @@ class DatabaseService:
             session.add(chat_session)
             session.commit()
             session.refresh(chat_session)
-            logger.info("session_created", session_id=session_id,
-                        user_id=user_id, name=name)
+            logger.info(
+                "session_created", session_id=session_id, user_id=user_id, name=name
+            )
             return chat_session
+
+    async def get_user_by_email(self, email: str) -> Optional[User]:
+        with Session(self.engine) as session:
+            statement = select(User).where(User.email == email)
+            user = session.exec(statement).first()
+            return user
