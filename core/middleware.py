@@ -25,9 +25,11 @@ class MetricsMiddleware(BaseHTTPMiddleware):
 
             # Record metrics
             http_requests_total.labels(
-                method=request.method, endpoint=request.url.path, status=status_code).inc()
+                method=request.method, endpoint=request.url.path, status=status_code
+            ).inc()
 
             http_request_duration_seconds.labels(
-                method=request.method, endpoint=request.url.path).observe(duration)
+                method=request.method, endpoint=request.url.path
+            ).observe(duration)
 
         return response

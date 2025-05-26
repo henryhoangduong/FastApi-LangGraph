@@ -1,14 +1,8 @@
 """This file contains the thread model for the application."""
 
-from datetime import (
-    UTC,
-    datetime,
-)
+from datetime import UTC, datetime
 
-from sqlmodel import (
-    Field,
-    SQLModel,
-)
+from sqlmodel import Field, SQLModel
 
 
 class Thread(SQLModel, table=True):
