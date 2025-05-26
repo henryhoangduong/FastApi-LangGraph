@@ -5,8 +5,11 @@ from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.responses import Response
 
-from core.metrics import (db_connections, http_request_duration_seconds,
-                          http_requests_total)
+from core.metrics import (
+    db_connections,
+    http_request_duration_seconds,
+    http_requests_total,
+)
 
 
 class MetricsMiddleware(BaseHTTPMiddleware):

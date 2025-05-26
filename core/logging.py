@@ -141,7 +141,7 @@ def setup_logging() -> None:
     logging.basicConfig(
         format="%(message)s",
         level=settings.LOG_LEVEL,
-        handlers=[file_handler, console_handler],
+        handlers=[console_handler],
     )
 
     # Configure structlog based on environment

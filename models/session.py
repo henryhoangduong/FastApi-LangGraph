@@ -1,14 +1,8 @@
 """This file contains the session model for the application."""
 
-from typing import (
-    TYPE_CHECKING,
-    List,
-)
+from typing import TYPE_CHECKING, List
 
-from sqlmodel import (
-    Field,
-    Relationship,
-)
+from sqlmodel import Field, Relationship
 
 from models.base import BaseModel
 

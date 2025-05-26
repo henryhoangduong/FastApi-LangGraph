@@ -1,8 +1,9 @@
 from typing import TYPE_CHECKING, List
 
 import bcrypt
-from models.base import BaseModel
 from sqlmodel import Field, Relationship
+
+from models.base import BaseModel
 
 if TYPE_CHECKING:
     from models.session import Session
@@ -26,7 +27,9 @@ class User(BaseModel, table=True):
 
     def verify_password(self, password: str) -> bool:
         """Verify if the provided password matches the hash."""
-        return bcrypt.checkpw(password.encode("utf-8"), self.hashed_password.encode("utf-8"))
+        return bcrypt.checkpw(
+            password.encode("utf-8"), self.hashed_password.encode("utf-8")
+        )
 
     @staticmethod
     def hash_password(password: str) -> str:

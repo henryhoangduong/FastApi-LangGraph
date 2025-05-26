@@ -57,14 +57,16 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     # Format the errors to be more user-friendly
     formatted_errors = []
     for error in exc.errors():
-        loc = " -> ".join([str(loc_part)
-                          for loc_part in error["loc"] if loc_part != "body"])
+        loc = " -> ".join(
+            [str(loc_part) for loc_part in error["loc"] if loc_part != "body"]
+        )
         formatted_errors.append({"field": loc, "message": error["msg"]})
 
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         content={"detail": "Validation error", "errors": formatted_errors},
     )
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -90,7 +92,9 @@ async def root(request: Request):
         "redoc_url": "/redoc",
     }
 
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0", port=8000, workers=1)
+    uvicorn.run(app, host="0.0.0.0", port=8000, workers=1,
+                reload=True, reload_excludes=["logs/*"])
