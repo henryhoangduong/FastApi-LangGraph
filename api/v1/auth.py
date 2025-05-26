@@ -1,20 +1,18 @@
-from fastapi import APIRouter, Request
+import uuid
+
+from fastapi import APIRouter, Depends, Form, Request
 from fastapi.exceptions import HTTPException
-from fastapi.security import (
-    HTTPAuthorizationCredentials,
-    HTTPBearer,
-)
-from fastapi import Form
+from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+
 from core.config import settings
 from core.limiter import limiter
 from core.logging import logger
+from models.session import Session
 from models.user import User
-from schemas.auth import UserCreate, UserResponse, SessionResponse, TokenResponse
+from schemas.auth import SessionResponse, TokenResponse, UserCreate, UserResponse
 from services.database import DatabaseService
 from utils.auth import create_access_token, verify_token
-from fastapi import Depends
 from utils.sanitization import sanitize_string
-import uuid
 
 router = APIRouter()
 security = HTTPBearer()
@@ -63,7 +61,6 @@ async def get_current_user(
                 detail="User not found",
                 headers={"WWW-Authenticate": "Bearer"},
             )
-
         return user
     except ValueError as ve:
         logger.error("token_validation_failed", error=str(ve), exc_info=True)
@@ -136,3 +133,35 @@ async def login(
     except ValueError as ve:
         logger.error("login_validation_failed", error=str(ve), exc_info=True)
         raise HTTPException(status_code=422, detail=str(ve))
+
+
+async def get_current_session(
+    credentials: HTTPAuthorizationCredentials = Depends(security),
+) -> Session:
+    try:
+        token = sanitize_string(credentials.credentials)
+        session_id = verify_token(token)
+        if session_id is None:
+            logger.error("session_id_not_found", token_part=token[:10] + "...")
+            raise HTTPException(
+                status_code=401,
+                detail="Invalid authentication credentials",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        session = await db_service.get_session(session_id)
+        if session is None:
+            logger.error("session_not_found", session_id=session_id)
+            raise HTTPException(
+                status_code=404,
+                detail="Session not found",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        return session
+    except ValueError as ve:
+        logger.error("token_validation_failed", error=str(ve), exc_info=True)
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid token format",
+            headers={"WWW-Authenticate": "Bearer"},
+        )

@@ -5,11 +5,17 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "asgiref>=3.8.1",
     "bcrypt>=4.3.0",
+    "duckduckgo-search>=8.0.2",
     "fastapi[standard]>=0.115.12",
     "langchain-community>=0.3.24",
+    "langchain-openai>=0.3.18",
     "langfuse>=2.60.5",
+    "langgraph>=0.4.7",
+    "langgraph-checkpoint-postgres>=2.0.21",
     "prometheus-client>=0.22.0",
+    "psycopg-pool>=3.2.6",
     "psycopg2>=2.9.10",
     "python-jose>=3.4.0",
     "slowapi>=0.1.9",
