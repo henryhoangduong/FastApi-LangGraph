@@ -1,0 +1,16 @@
+[project]
+name = "fastapi-langgraph"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "bcrypt>=4.3.0",
+    "fastapi[standard]>=0.115.12",
+    "langfuse>=2.60.5",
+    "prometheus-client>=0.22.0",
+    "slowapi>=0.1.9",
+    "sqlmodel>=0.0.24",
+    "starlette-prometheus>=0.10.0",
+    "structlog>=25.3.0",
+]
